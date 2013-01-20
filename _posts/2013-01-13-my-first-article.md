@@ -1,6 +1,7 @@
 ---
 layout: post
 title: this is my new blog only for log infomation 
+category: vim 
 ---
 
 {{ page.title }}
