@@ -1,0 +1,21 @@
+---
+layout: nil
+---
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title>fofore QMM: {{ page.title }}</title>
+  <link href="http://fofore.com/category/php/atom.xml" rel="self"/>
+  <link href="http://fofore.com/"/>
+  <updated>{{ site.time | date_to_xmlschema }}</updated>
+  <id>http://fofore.com/</id>
+  <author>
+    <name>Min Ming Qian</name>
+    <email>qianminming@gmail.com</email>
+  </author>
+
+  {% for post in site.categories[page.category] %}
+  {% include post.xml %}
+  {% endfor %}
+
+</feed>

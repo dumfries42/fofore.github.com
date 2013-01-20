@@ -1,28 +1,19 @@
 ---
 layout: default
-title: 
+title: fofore QMM
 Description: The man who named fofore want to keep something in mind and here.
 Keywords: fofore, vim, Ruby, Python, Network, Linux, markdown, jekyll, Github, HHKB, PURE, 
 ---
 
-<div class="banner">
-    <div class="b-cnt">
-        <div class="ui-grid-25 ui-grid-bottom ui-grid-right">
-            <div class="banner-cnt" id="J_banner">
-            </div> 
-        </div>
-    </div>   
-</div>
+<p class="intro">
+    Network Engineer in Wuxi, China.
+</p>
 
-<h2>{{ page.title }}</h2>
-
-<p>最新文章</p>
-
-<ul>
+<ul class="posts">
 
 　　{% for post in site.posts %}
 
-　　　　<li>{{ post.date | date_to_string }} <a href="{{ site.baseurl }}{{ post.url }}">{{ post.title }}</a></li>
+　　　　<li><span>{{ post.date | date_to_string }}</span> &raquo <a href="{{ site.baseurl }}{{ post.url }}">{{ post.title }}</a></li>
 
 　　{% endfor %}
 
