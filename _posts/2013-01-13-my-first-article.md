@@ -12,12 +12,10 @@ category: vim
 
 another blog for writting, but not for beauty, and other tough things.
 
-**use**
+**this blog is powered by:**
     
     1.github
     2.markdown
     3.jekyll
     4.vim
 
-
-need to see if the github pages is better or not
