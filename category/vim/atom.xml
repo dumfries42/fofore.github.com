@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title>fofore QMM: vim</title>
+  <link href="http://fofore.com/category/php/atom.xml" rel="self"/>
+  <link href="http://fofore.com/"/>
+  <updated>2013-01-20T20:29:41+08:00</updated>
+  <id>http://fofore.com/</id>
+  <author>
+    <name>Min Ming Qian</name>
+    <email>qianminming@gmail.com</email>
+  </author>
+
+  
+    <entry>
+    <title>this is my new blog only for log infomation</title>
+    <link href="http://fofore.com/vim/2013/01/13/my-first-article.html"/>
+    <id>/vim/2013/01/13/my-first-article</id>
+    <updated>2013-01-13T00:00:00+08:00</updated>
+    <content type="html"><![CDATA[<h1>vim</h1>
+
+<p class="meta">13 01 2013 - Wuxi</p>
+
+
+<p>another blog for writting, but not for beauty, and other tough things.</p>
+
+<p><strong>this blog is powered by:</strong></p>
+
+<pre><code>1.github
+2.markdown
+3.jekyll
+4.vim
+</code></pre>
+]]></content>
+  </entry>
+
+  
+
+</feed>
