@@ -19,3 +19,4 @@ another blog for writting, but not for beauty, and other tough things.
     3.jekyll
     4.vim
 
+doubanclaim64193f969e1e8320
