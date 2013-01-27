@@ -35,7 +35,7 @@
         <a href="http://weibo.com/fofore">weibo.com/fofore</a>
     </div>
     <div class="rss">
-        <a href="http://fofore.blog/atom.xml"><img src="/images/rss.png" alt="Subscribe to the RSS feed" /></a>
+        <a href="http://feeds.feedburner.com/fofore/all"><img src="/images/rss.png" alt="Subscribe to the RSS feed" /></a>
     </div>
 </footer>
 
