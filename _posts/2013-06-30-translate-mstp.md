@@ -54,7 +54,7 @@ category: story
 
 这里会有一些问题,由于这个事实-生成树实例没有被映射(一个一个的)到VLAN.使用PVST,剪裁一个VLAN在一个链路上,会同样禁止相应的STP在同样的链路上.既然MSTI脱离(decouple)VLAN,每个MSTI都跑在每个link上(域中的).这个在MSTI实例之间,差异在-他们做决定让哪条链路转发或者阻塞.通过剪裁(prune)VLAN,你可以终止于一个情形-VLAN没有使能在链路-(这些链路:相应的MSTI是转发或者使能,相应的MSTI阻塞). 考虑下面的例子用于解释这个想法.
 
-![mstp-3-vlan-pruning-caveats.png](/image/mstp-3-vlan-pruning-caveats.png)
+![mstp-3-vlan-pruning-caveats.png](/images/mstp-3-vlan-pruning-caveats.png)
 
 在这个拓扑中,VLAN被手动的剪裁了-在trunk中.TODO由于这个过滤是不符合相应(respective)的MSTI阻塞决定,VLAN2的流量是被阻塞了,在SW1和SW2之间.为了避免这种情况,不要用静态的"VLAN"剪裁方法-分配VLAN跨越trunk,当你有MSTP使能.一种情况相同于这个(描述的)就是当端口连接交换机是**接入(access)端口**.MSTP跑在这些端口上,并且有逻辑拓扑-可能是阻塞或者转发-在端口上.取决于VLAN到MSTI的映射,一个给定的VLAN可能被阻塞在接入端口-由于MSTP决定,尽管这个接入VLAN是不同的,他们使用相同的STP.为了避免这个问题,不要跑MSTP在接入端口,而且用他们于链接"末端"设备(只这样用)-例如,主机以及叶子(leaf)交换机. (同一个实例中的vlan,不要使用access端口, 同一个实例中不要将VLAN允许到不同的躯干(trunk)中)
 
