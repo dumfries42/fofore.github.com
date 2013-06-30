@@ -291,6 +291,8 @@ MSTP被设计成克服一个主要的问题-传统的STP协议的--无力(*inabi
 
 ##进一步阅读
 [IEEE 802.1 系列标准](http://standards.ieee.org/about/get/802/802.1.html)
+
 [MSTP配置指导](http://www.cisco.com/en/US/docs/switches/datacenter/nexus5000/sw/configuration/guide/cli_rel_4_0_1a/MST.html)
+
 [RFC 5517: 思科系统的私有VLAN](http://tools.ietf.org/html/rfc5517)
 
