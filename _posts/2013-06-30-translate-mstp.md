@@ -256,4 +256,39 @@ CIST外部根路径开销是一个开销-去到达CIST总根的-穿过链路-连
 
 CST是这样建设-这里MSTP互操作-与IEEE STP/RSTP域-也可以.历史的交换机域(jion with)组合它们的STP实例和CST,并且perceive(当做,感受)MSTP域为"透明的"虚拟桥,持续的不感知它们的内部拓扑.这样,连接到IEEE STP/RSTP域就扩张了CST.MSTP发现合适的(appropriate)STP版本-在边界链路-通过侦听外部,和(并发现)交换机对应的模式-用来操作(RSTP/STP).这会发生,一个交换机拥有最低的桥ID-属于RSTP/STP域.这个情况导致这个结果-所有的MSTP域选举本地CIST域根,然后认为最新的CIST总根位于MSTP"域"的外面.
 
-第二个等级-CIST层次-组成为-不同的MSTP域内IST.每个MSTP域建造IST实例-使用内部路径开销-并且遵循最优的(*optimal*)"内部"拓扑,使用CIST域根作为IST根.这个变化-CST的-可能影响IST(们)在所有的域,因为这些变化可能导致重选-新的CIST域根.变化-各个域的内部拓扑 通常不会影响CST,除非这些变化分裂(*partition*)了域.
+第二个等级-CIST层次-组成为-不同的MSTP域内IST.每个MSTP域建造IST实例-使用内部路径开销-并且遵循最优的(*optimal*)"内部"拓扑,使用CIST域根作为IST根.这个变化-CST的-可能影响IST(们)在所有的域,因为这些变化可能导致重选-新的CIST域根.变化-各个域的内部拓扑的-通常不会影响CST,除非这些变化分裂(*partition*)了域.
+
+##映射MSTI到CIST
+
+MSTI(们)被建立-独立的-在每个域,但是它们必须被映射到CIST在边界端口.这就意味着(*inability*)地来负载平衡VLAN流量-在边界端口--通过映射VLAN(们)到不同的实例.所有的VLAN(们)使用同样的非阻塞边界端口,他们是-或是上行或是下行-对于CIST总根.这个情形(*statement*)只在这时有效-就是(with respect to)CST路径连接域虚拟桥.在任何域内部,VLAN们遵循内部逻辑路径,基于相关的(respective)MSTI配置.
+
+这些MSTI没有知识-关于CIST总根-完全的;他们只用内部路径和内部MSTI根来建立生成树.然而所有的MSTP实例看到根端口(去往CIST总根的)-属于CIST域根的-被当做一个特殊的**主口(master port)**连接他们到CIST根桥.这个端口服务于这样的目的-"网关"-连接MSTI到其他的域.回忆下(Recall)交换机没有发送M-记录(MSTI信息)出到边界端口外,只有CIST信息.这样,CIST和MSTI可以收敛-独立的并且并行的(*parallel*).主口只开始转发-唯有当所有的对应的MSTI端口都同步了而且转发了-来阻止临时桥环路.
+
+##MSTP多域设计考虑
+..待完成
+
+##互操作-与PVST+
+..待完成
+
+![mstp-3-mstp-and-pvst-interaction.png](/images/mstp-3-mstp-and-pvst-interaction.png)
+
+
+##配置脚本1:CIST总根和CIST域根
+..待完成
+
+![mstp-3-multi-region-config-scenario.png](/images/mstp-3-multi-region-config-scenario.png)
+
+##配置脚本2:MSTI和主口
+..待完成
+
+##配置脚本3:PVST+和MSTP互操作
+..待完成
+
+##结论
+..待完成
+
+##进一步阅读
+[IEEE 802.1 系列标准](http://standards.ieee.org/about/get/802/802.1.html)
+[MSTP配置指导](http://www.cisco.com/en/US/docs/switches/datacenter/nexus5000/sw/configuration/guide/cli_rel_4_0_1a/MST.html)
+[RFC 5517: 思科系统的私有VLAN](http://tools.ietf.org/html/rfc5517)
+
