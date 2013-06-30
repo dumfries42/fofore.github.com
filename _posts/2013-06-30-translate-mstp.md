@@ -131,8 +131,9 @@ category: story
     interface FastEthernet0/16
      switchport trunk encapsulation dot1q
      switchport mode trunk
-    The following show commands will demonstrate the effect our configuration has on traffic forwarding:
-    
+
+下面的显示命令将显示出效果-我们的配置对于流量转发:
+
     SW1#show spanning-tree mst configuration
     Name      [REGION1]
     Revision  0     Instances configured 3
@@ -243,7 +244,7 @@ CIST外部根路径开销是一个开销-去到达CIST总根的-穿过链路-连
 
 这个域-包含CIST总根的-将拥有所有的边界端口非阻塞,并且被标记为CIST指定端口.有效的-域应该被看做虚拟根桥-拥有桥ID等于CIST总根ID,并且所有的端口为指定的.注意到-这个域-有CIST总根-它的CIST域根等于CIST总根-因为他们拥有相同的最低的优先级-贯穿整个域.
 
-看一下这个图片-在下面.他显示了(demonstrate)CIST拓扑计算-从物理拓扑-我们强调过的-在上面.首先,SW-1是被选举了-作为CIST总根-因为他有最低的桥ID-在所有的桥-在所有的域.这就自动的让域1成为了一个虚拟桥-它的所有的边界端口非阻塞.下一步,SW2-1和SW3-1被选举了-成为CIST域根在他们对应的域,每个域-没有包括CIST总根的-必须改变IST根选举流程-让IST根等于CIST域根.
+看一下这个图片-在下面.他显示了(*demonstrate*)CIST拓扑计算-从物理拓扑-我们强调过的-在上面.首先,SW-1是被选举了-作为CIST总根-因为他有最低的桥ID-在所有的桥-在所有的域.这就自动的让域1成为了一个虚拟桥-它的所有的边界端口非阻塞.下一步,SW2-1和SW3-1被选举了-成为CIST域根在他们对应的域,每个域-没有包括CIST总根的-必须改变IST根选举流程-让IST根等于CIST域根.
 
 ![mstp-3-multi-region-cist-constructions.png](/images/mstp-3-multi-region-cist-constructions.png)
 
@@ -251,4 +252,8 @@ CIST外部根路径开销是一个开销-去到达CIST总根的-穿过链路-连
 
 从上面的信息,我们可以总结出-CIST(实质上)(essentially)组织于 两等级层次.第一个等级对待所有的域为"虚拟桥",并且操作-用外部路径开销.第一层生成树根子CIST总根桥,并且encompass(包括,围绕)虚拟桥.这棵生成树被得知-作为CST或者公共生成树.CST连接所有边界端口,并且perceive(感知,觉察)每个域-作为单独的虚拟桥-它的桥ID等于域根桥ID.
 
+![mstp-3-multi-region-cst-and-vbridges.png](/images/mstp-3-multi-region-cst-and-vbridges.png)
 
+CST是这样建设-这里MSTP互操作-与IEEE STP/RSTP域-也可以.历史的交换机域(jion with)组合它们的STP实例和CST,并且perceive(当做,感受)MSTP域为"透明的"虚拟桥,持续的不感知它们的内部拓扑.这样,连接到IEEE STP/RSTP域就扩张了CST.MSTP发现合适的(appropriate)STP版本-在边界链路-通过侦听外部,和(并发现)交换机对应的模式-用来操作(RSTP/STP).这会发生,一个交换机拥有最低的桥ID-属于RSTP/STP域.这个情况导致这个结果-所有的MSTP域选举本地CIST域根,然后认为最新的CIST总根位于MSTP"域"的外面.
+
+第二个等级-CIST层次-组成为-不同的MSTP域内IST.每个MSTP域建造IST实例-使用内部路径开销-并且遵循最优的(*optimal*)"内部"拓扑,使用CIST域根作为IST根.这个变化-CST的-可能影响IST(们)在所有的域,因为这些变化可能导致重选-新的CIST域根.变化-各个域的内部拓扑 通常不会影响CST,除非这些变化分裂(*partition*)了域.
