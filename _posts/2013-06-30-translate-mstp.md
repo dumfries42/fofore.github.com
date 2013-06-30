@@ -5,7 +5,7 @@ category: story
 ---
 
 #1.动机
-首先,这是一篇"奇葩"的翻译文.因为这篇文章采用的方法为"直译法",而且是非常直译,刻意而为之的直译.为何进行这样子的直译.其实本来是准备规规矩矩的将这篇文档翻译出来,因为网络上关于MSTP介绍的文章乏善可陈.所以使用goole英文搜索到这篇比较有诚意的文章:[Understanding MSTP](http://blog.ine.com/2010/02/22/understanding-mstp/).但是阅读过程遇到不少问题,关键还是英文思维的问题.因为这些句子都是比较长,如果整句读下来,再去用中文思维理解,非常之困难和费时间.而且如果遇到一些比较难懂的英文单词,整句话,就没有办法理解.于是我在想,是不是这样阅读英文文章的方法都是错误的.
+首先,这是一篇"奇葩"的翻译文.因为这篇文章采用的方法为"直译法",而且是非常直译,刻意而为之的直译.为何进行这样子的直译.其实本来是准备规规矩矩的将这篇文档翻译出来,因为网络上关于MSTP介绍的文章乏善可陈.所以使用google英文搜索到这篇比较有诚意的文章:[Understanding MSTP](http://blog.ine.com/2010/02/22/understanding-mstp/).但是阅读过程遇到不少问题,关键还是英文思维的问题.因为这些句子都是比较长,如果整句读下来,再去用中文思维理解,非常之困难和费时间.而且如果遇到一些比较难懂的英文单词,整句话,就没有办法理解.于是我在想,是不是这样阅读英文文章的方法都是错误的.
 
 最终,我发现了一个有趣的现象,当我改变了翻译方法,不再一整句一整句的想用中文表述出来,而是就跟着文章的英文语序,简单的进行转化到中文的变化,不但能够很快的理解文章,而且似乎还有了一点"英文思维"的感觉在里面,不知道这样的感觉是不是错觉呢?(大把流汗!)
 
@@ -21,7 +21,7 @@ category: story
 
 --------------- **我是用来分割闲话和正文的分割线** -------------------
 
-#理解MSTP
+#                       理解MSTP
 
 ##介绍
 ..待完成
@@ -58,5 +58,189 @@ category: story
 
 在这个拓扑中,VLAN被手动的剪裁了-在trunk中.TODO由于这个过滤是不符合相应(respective)的MSTI阻塞决定,VLAN2的流量是被阻塞了,在SW1和SW2之间.为了避免这种情况,不要用静态的"VLAN"剪裁方法-分配VLAN跨越trunk,当你有MSTP使能.一种情况相同于这个(描述的)就是当端口连接交换机是**接入(access)端口**.MSTP跑在这些端口上,并且有逻辑拓扑-可能是阻塞或者转发-在端口上.取决于VLAN到MSTI的映射,一个给定的VLAN可能被阻塞在接入端口-由于MSTP决定,尽管这个接入VLAN是不同的,他们使用相同的STP.为了避免这个问题,不要跑MSTP在接入端口,而且用他们于链接"末端"设备(只这样用)-例如,主机以及叶子(leaf)交换机. (同一个实例中的vlan,不要使用access端口, 同一个实例中不要将VLAN允许到不同的躯干(trunk)中)
 
+##MSTP单域配置实例
 
+现在我们有了基础的认识-对于如何MSTP工作在一个域内.让我们创建一个样例配置. 考虑到如下的物理拓扑-这三个交换机的:
 
+![3-switchs](/images/mstp-3-single-region-config-scenario.png)
+
+这个拓扑有这几个VLAN:1,10,20,30,40,50,60. 我们的目标-为了这个脚本(scenario)是:
+
+    让VLANs 10,20,30跟随链路-从SW3-Sw1
+    让VLANs 40 50 60跟随链路-从SW3-SW2
+    如果任何上面的链路失效了,受影响的VLAN应该调整(fall-back)到其他的链路.
+
+为了做到(accomplish)这个,我们创建两个MSTI,编号1和2.SW1将是根-用于实例1,SW2将是根-用于实例2.至于IST(MSTI0),我们使SW3为根交换机-给IST(尽管这不是提倡的recommended-指定根角色给接入交换机).至于VLAN到MSTI的映射,VLAN1将仍然映射到IST.剩下的VLANs 10,20和30将映射到MSTI1,同事VLANs 40 50和60将映射到MSTI2. 下面是配置:
+
+    SW1:
+    spanning-tree mode mst
+    !
+    spanning-tree mst configuration
+     name REGION1
+     instance 1 vlan 10, 20, 30
+     instance 2 vlan 40, 50, 60
+    !
+    ! Root for MSTI1
+    !
+    spanning-tree mst 1 priority 8192
+    !
+    interface FastEthernet0/13
+     switchport trunk encapsulation dot1q
+     switchport mode trunk
+    !
+    interface FastEthernet0/16
+     switchport trunk encapsulation dot1q
+     switchport mode trunk
+    
+    SW2:
+    spanning-tree mode mst
+    !
+    spanning-tree mst configuration
+     name REGION1
+     instance 1 vlan 10, 20, 30
+     instance 2 vlan 40, 50, 60
+    !
+    ! Root for MSTI 2
+    !
+    spanning-tree mst 2 priority 8192
+    !
+    interface FastEthernet0/13
+     switchport trunk encapsulation dot1q
+     switchport mode trunk
+    !
+    interface FastEthernet0/16
+     switchport trunk encapsulation dot1q
+     switchport mode trunk
+    
+    SW3:
+    spanning-tree mode mst
+    !
+    spanning-tree mst configuration
+     name REGION1
+     instance 1 vlan 10, 20, 30
+     instance 2 vlan 40, 50, 60
+    !
+    ! Root for the IST
+    !
+    spanning-tree mst 0 priority 8192
+    !
+    interface FastEthernet0/13
+     switchport trunk encapsulation dot1q
+     switchport mode trunk
+    !
+    interface FastEthernet0/16
+     switchport trunk encapsulation dot1q
+     switchport mode trunk
+    The following show commands will demonstrate the effect our configuration has on traffic forwarding:
+    
+    SW1#show spanning-tree mst configuration
+    Name      [REGION1]
+    Revision  0     Instances configured 3
+    
+    Instance  Vlans mapped
+    --------  ---------------------------------------------------------------------
+    0         1-9,11-19,21-29,31-39,41-49,51-59,61-4094
+    1         10,20,30
+    2         40,50,60
+    -------------------------------------------------------------------------------
+    
+    SW1#show spanning-tree mst               
+    
+    ##### MST0    vlans mapped:   1-9,11-19,21-29,31-39,41-49,51-59,61-4094
+    Bridge        address 0019.5684.3700  priority      32768 (32768 sysid 0)
+    Root          address 0012.d939.3700  priority      8192  (8192 sysid 0)
+                  port    Fa0/16          path cost     0
+    Regional Root address 0012.d939.3700  priority      8192  (8192 sysid 0)
+                                          internal cost 200000    rem hops 19
+    Operational   hello time 2 , forward delay 15, max age 20, txholdcount 6
+    Configured    hello time 2 , forward delay 15, max age 20, max hops    20
+    
+    Interface        Role Sts Cost      Prio.Nbr Type
+    ---------------- ---- --- --------- -------- --------------------------------
+    Fa0/13 Desg FWD 200000    128.15   P2p
+    Fa0/16 Root FWD 200000    128.18   P2p 
+    
+    ##### MST1 vlans mapped:   10,20,30
+    Bridge        address 0019.5684.3700  priority      8193  (8192 sysid 1)
+    Root          this switch for MST1
+    
+    Interface        Role Sts Cost      Prio.Nbr Type
+    ---------------- ---- --- --------- -------- --------------------------------
+    Fa0/13 Desg FWD 200000    128.15   P2p
+    Fa0/16 Desg FWD 200000    128.18   P2p 
+    
+    ##### MST2 vlans mapped:   40,50,60
+    Bridge        address 0019.5684.3700  priority      32770 (32768 sysid 2)
+    Root          address 001e.bdaa.ba80  priority      8194  (8192 sysid 2)
+                  port    Fa0/13          cost          200000    rem hops 19
+    
+    Interface        Role Sts Cost      Prio.Nbr Type
+    ---------------- ---- --- --------- -------- --------------------------------
+    Fa0/13 Root FWD 200000    128.15   P2p
+    Fa0/16           Altn BLK 200000    128.18   P2p 
+    
+    SW1#show spanning-tree mst interface fastEthernet 0/13
+    
+    FastEthernet0/13 of MST0 is designated forwarding
+    Edge port: no             (default)        port guard : none        (default)
+    Link type: point-to-point (auto)           bpdu filter: disable     (default)
+    Boundary : internal                        bpdu guard : disable     (default)
+    Bpdus sent 561, received 544
+    
+    Instance Role Sts Cost      Prio.Nbr Vlans mapped
+    -------- ---- --- --------- -------- -------------------------------
+    0        Desg FWD 200000    128.15   1-9,11-19,21-29,31-39,41-49,51-59
+                                         61-4094
+    1        Desg FWD 200000    128.15   10,20,30
+    2        Root FWD 200000    128.15   40,50,60
+    
+    SW1#show spanning-tree mst interface fastEthernet 0/16
+    
+    FastEthernet0/16 of MST0 is root forwarding
+    Edge port: no             (default)        port guard : none        (default)
+    Link type: point-to-point (auto)           bpdu filter: disable     (default)
+    Boundary : internal                        bpdu guard : disable     (default)
+    Bpdus sent 550, received 1099
+    
+    Instance Role Sts Cost      Prio.Nbr Vlans mapped
+    -------- ---- --- --------- -------- -------------------------------
+    0        Root FWD 200000    128.18   1-9,11-19,21-29,31-39,41-49,51-59
+                                         61-4094
+    1        Desg FWD 200000    128.18   10,20,30
+    2        Altn BLK 200000    128.18   40,50,60
+
+这个链路开销值是更高的-比默认的STP开销(IEEE标准值),并且MSTIx是叫做MSTx(例如IST是MST0).除此之外,注意到术语(term)"域根"-那将会被介绍-详细的-在下面.
+
+##公共和内部生成树
+
+正如在前面提到的,每个MSTP域跑特殊的实例-生成树的-被知道:IST或者是内部生成树(=MSTI0).这个实例主要的服务于这个目的:disseminating生成树信息-从MSTIs中.IST有一个根桥,被选举-基于最小的桥ID(桥优先级+MAC地址).这个情况跟着变化-当多个MSTP域在网络中.当一个交换机检测到BPDU信息:源于另外的域(或STP/PVST+BPDU),它标记这些对应的端口为MSTP边界.对于这个(for the)convenience,我们能称所有的其他口为"内部".一个交换机-有边界口,被认为是边界交换机.
+
+在这个图片中-下面的-你能看到3个MSTP域-interconnected为"环"拓扑-用一对线-在每两个域.这个链路-连接这些域的-连接了边界端口.既然每个交换机有一个连接到其他域,所有的交换机都是边界.需要注意简化的表达(简化表达法notation)-用于(for)链路开销和桥优先级.我讲使用这些来演示:如何-这些CIST被组成的.为了简化,假设所有的链路开销-在域内的-是同样的值:1.
+
+![mstp-3-multi-region-physical-topology.png](/images/mstp-3-multi-region-physical-topology.png)
+
+当多个域链接到一起,每个域需要建立它自己的IST,并且所有域应该建议一个公共的CIST生成树贯穿所有的域.为了看到如何这个完成的,第一,看一下这个结构:MSTP BPDU的.在个图-下面的,注意到MSTP用协议版本3作为opposed(相对)RSTP版本2.版本4是保留个SPT的-最短路径树-新的环路抑制以及报文桥接标准-定义在emergingIEEE 802.1aq文档.o
+
+![mstp-3-multi-region-cst-mstp-packet-format.png](/images/mstp-3-multi-region-cst-mstp-packet-format.png)
+
+这个MSTP BPDU包含了两个重要的块-块中是信息.第一个,高亮在红色,是相关到CIST根和CIST域根选举.就你将看到的-不久以后,CIST总根是被选举-在所有域里,CIST的域根是选举的-在每个域里.这个绿色的块-高亮出了信息-关于CIST域根(谁-成为IST根in presence of(当存在)多个域).CIST的内部根路径开销是区域内开销-要达到CIST域根的.这是重要的-记在脑子里-**IST根==CIST域根**在这种情况下:当多个域协同工作.这个转换(transformation)是会被解释的-将来-在文章里.先要,要去定义CIST总根和CIST域根的角色了.
+
+CSIT总根是这样的桥-它有最低的桥ID-在所有的域中.它可以是一个桥-在一个域内部或者一个边界交换机-域的.
+
+CIST域根是一个**边界交换机**被选举-为每个域-基于最短的外部路径开销-到达CIST总根的.路径开销是被计算的-基于开销-链路连接到域的.不包括内部的域内路径.CIST域根成为根-IST的-对于这个指定的域-同样的.
+
+##CIST总根桥选举过程
+
+    当一个交换机启动了,它宣称自己是CIST总根和CIST域根,并且宣布这个事实-在出去的BPDU中.这个交换机将修正(adjust)它的决定-基于回信-有更好的信息,并且继续宣告这个最好的CIST总根和CIST域根在所有的**内部端口**.在边界端口,这个交换宣告的**只有**CIST总根的桥ID和CIST外部路径开销,这样隐藏了细节-关于域的内部拓扑的.
+    
+    CIST外部根路径开销是一个开销-去到达CIST总根的-穿过链路-连接到边界端口的.例如.域间的链路. 当一个BPDU被收到了-在一个内部的端口,这个开销(CIST外部根路径开销)是**不会变化的**.当一个BPDU被收到了-再一个边界端口,这个开销是会被调整的(adjusted)-基于这个收到的边界端口的端口开销.结果是,CIST外部根路径开销被宣扬-没有变化的-在任何域内部.
+    
+    只有一个边界路由器能够被选举为CIST域根,且这个交换-有 最小的开销到达CIST总根.如果一个边界交换机听到了更好的CIST外部路径开销-接收在它的内部链路,它会释放(relinquish)它的角色-作为CIST域根的,并且开始宣布新的度量-在它的边界端口出去时.
+    
+    每个边界交换机需要恰当的(properly)阻塞它的边界端口.如果该交换机是一个CIST域根,它选举一个边界端口作为"CIST总根端口",并且阻塞所有其他边界端口.如果一个边界交换机不是CIST域根,它将标记边界端口为CIST指定或者备用口.边界端口-在一个非域根桥上成为指定口-只有当它有更优先(superior)的信息-对于CIST总根:更好的外部路径开销或者当开销相同的时候有更好的CIST域根桥ID.这个情况是根据实际规则-STP处理过程(process)的.
+    
+    作为结果-CIST的建立,每个域将有**一个交换机**有单个端口没有阻塞在这个方向-往CIST去的.这个交换机是CIST域根.所有的边界交换机将宣告这个域的CIST域根桥ID-往外-到他们的非阻塞的边界端口.从外面看(outside perspective),这整个域将看起来是个单独的虚拟桥,拥有桥ID==CIST域根的ID,并且有单独的根端口选举在CIST域根交换机上.
+    
+    这个域-包含CIST总根的-将拥有所有的边界端口非阻塞,并且被标记为CIST指定端口.有效的-域应该被看做虚拟根桥-拥有桥ID等于CIST总根ID,并且所有的端口为指定的.注意到-这个域-有CIST总根-它的CIST域根等于CIST总根-因为他们拥有相同的最低的优先级-贯穿整个域.
+    
+看一看
