@@ -605,7 +605,7 @@ sw4有更小的桥优先级-比sw2,但是它没有被选举为cist域根,因为s
     Fa0/16           Desg FWD 200000    128.18   P2p
     Fa0/19           Desg FWD 200000    128.21   P2p
 
-在msti1没有域根.只有普通的根,就是msti的根,使用常规的stp规则.在我们的例子里,root是sw4,根端口是fa0/19.下一个注意是特殊的"master端口".这是一个uplink端口-cist域根的.所有的msti映射到cist在这里,并且跟随单独的路径.这个端口同样是转发的并且提供了路径上行到cist总根-为所有msti和它们映射的vlan.这是非常有趣的-手机mstp的bpdu-发送和收到的在sw2上:
+在msti1没有域根.只有普通的根,就是msti的根,使用常规的stp规则.在我们的例子里,root是sw4,根端口是fa0/19.下一个注意是特殊的"master端口".这是一个uplink端口-cist域根的.所有的msti映射到cist在这里,并且跟随单独的路径.这个端口同样是转发的并且提供了路径上行到cist总根-为所有msti和它们映射的vlan.这是非常有趣的-收集mstp的bpdu-发送和收到的在sw2上:
 
     SW2#debug spanning-tree mstp bpdu receive 
     MSTP BPDUs RECEIVEd dump debugging is on
