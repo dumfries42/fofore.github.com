@@ -354,21 +354,468 @@ CST(链接虚拟交换机的生成树)的拓扑变化会影响所有的域中的
 
 
 ##互操作-与PVST+
-..待完成
+
+对于这个设计,PVST+跑一个独立的STP实例为每个VLAN.相反的,MSTP映射VLAN到MSTI上,所以一一对应的映射-在VLAN和STP实例间-不再是绝对的.如何使一个MSTP交换机运行-在一个边界链路-连接到PVST+域的?
+
+MSTP跑多个MSTI在域内部并且映射他们所有人到CIST在边界端口.互操作模型需要保证内部MSTI能够感知变化-任何PVST树的.这是困难的自动的映射VLAN绑定的STP到MSTI,所以最简单的方法来实现这个期望(diesired)的行为就是将所有的PVST+树结合到CST.
+
+通过链接PVST+树到CST,这个解决方案保证了任何PVST+生成树的变化会影响CST和所有的MSTI-这个结果.但不是最优的解决方案,它保证了没有变化是遗漏通知的并且没有黑洞发生在任何一个单独的VLAN-拓扑改变的.使用IEEE STP,所有的树在PVST域感知(perceives)MSTP域为一个虚拟的桥-带有多个的边界端口.一个拓扑变化在任何的PVST树影响CST并且影响(impact)每个MSTI实例在所有的MSTP域中.这个行为上的MSTP拓扑没那么健壮并且完全的暴露给了变化-在PVST+域中的.
+
+MSTP的实现模拟PVST+,通过(复制)replicate CIST BPDU在链路-面对PVST域的-并且发送这些BPDU在所有VLAN活动在汇聚里的.MSTP交换机消费(consume)所有的BPDU接受子PVST域并且处理他们-使用CIST实例.PVST+域看mstp域为一个pvst+桥-其所有每-vlan实例-宣称在cist根作为他们stp的根.关于(with repect to)公共的stp根选举在mstp和pvst,这里有如下的选项是可以的.
+
+* mstp区域(或者是一个单独的域或者是多个域)包含着根桥-对所有vlan来说的.这就意味着cist根桥id是更好的比其他任何pvst+的生成树根桥id.如果只有一个mstp域连接到pvst+区域,那么所有的边界口在虚拟桥将是非阻塞并且能够被pvst+树使用.这是一个提倡的设计方案,管理员能够手动控制(manipulate)上行链路开销在pvst+那一侧,那样能获得最优的流量工程结果.在这个图-下面的,vlan 2和3的stp开销被调整,那样他们选择不同的上行链路-连接到mstp域的边界端口.既然这个cist根在mstp内部,两个边界端口是非阻塞指定端口,这样负载平很的scheme(方案)工作得很好.
 
 ![mstp-3-mstp-and-pvst-interaction.png](/images/mstp-3-mstp-and-pvst-interaction.png)
 
+* pvst+区域包含了根桥-为所有的vlan.这是存在在所有pvst根桥的桥id-对所有vlan的-是更好于mstp cist根桥id.这不是一个推荐的设计,因为所有的msti映射到cist在边界链路,并且你不能负载平衡msti,在他们介入pvst域的时候.
+
+思科实现不支持第二种选项.mstp域必须包含桥-有最有桥id的,来保证cist根同样是所有pvst树的根.在任何其他的情况下,mstp边界交换会发出抱怨并且置这些端口-收到更优的bpdu来自pvst-为根-不符(root-inconsistent)状态.为了解决这个问题,保证pvst域没有任何桥-它的桥id比cist根桥更优.
+
+最后还有些话关于mstp和pvst互操作.需要使用在同样的方式(manner)并且遵守同样的规则-与pvst互操作,当isl被用来作为trunk封装时候.
 
 ##配置脚本1:CIST总根和CIST域根
-..待完成
+
+在这个脚本里,我们配置4个交换机在两个域中.第一个域包括1个交换机sw1,第二个域包括3个交换机:sw2,sw3,sw4.sw1是cist总根-归功于它的最低的优先级;sw2是cist域根-作为region234的.我们修改链路开销在region234-为了使sw3选择路径到sw2经过sw4,并且不经过直接连接的路径.
 
 ![mstp-3-multi-region-config-scenario.png](/images/mstp-3-multi-region-config-scenario.png)
+
+    SW1:
+    spanning-tree mode mst
+    !
+    ! Minimum Priority among all bridges
+    !
+    spanning-tree mst 0 priority 4096
+    !
+    spanning-tree mst configuration
+     name REGION1
+     exit
+    
+    SW2:
+    spanning-tree mode mst
+    spanning-tree mst configuration
+     name REGION234
+     exit
+    !
+    ! SW2 priority is less than SW4’s, but it has better cost to CIST Root
+    !
+    spanning-tree mst 0 priority 16384
+    !
+    ! This is the active boundary port
+    !
+    interface FastEthernet 0/13
+     spanning-tree mst 0 cost 50
+    !
+    interface FastEthernet 0/14
+     spanning-tree mst 0 cost 200
+    !
+    interface FastEthernet 0/16
+     spanning-tree mst 0 cost 100
+    
+    SW3:
+    spanning-tree mode mst
+    spanning-tree mst configuration
+     name REGION234
+     exit
+    !
+    interface FastEthernet 0/16
+     spanning-tree mst 0 cost 100
+    !
+    interface FastEthernet 0/19
+     spanning-tree mst 0 cost 10
+    
+    SW4:
+    spanning-tree mode mst
+    spanning-tree mst configuration
+     name REGION234
+     exit
+    !
+    ! SW4 has better IST priority but higher cost to the CIST Root
+    !
+    spanning-tree mst 0 priority 8192
+    !
+    interface FastEthernet 0/13
+     spanning-tree mst 0 cost 100
+    !
+    interface FastEthernet 0/16
+     spanning-tree mst 0 cost 10
+    !
+    interface FastEthernet 0/19
+     spanning-tree mst 0 cost 10
+在上面的配置我们修改链路开销为了保证下面的几条:
+* mstp region234 选举sw2作为cist域根-因为它有最小的路径到cist总根.sw2是cist域根-作为region234的,尽管sw4有更好的交换机优先级在域内.
+* sw3选举路径通过sw4来到达内部根桥-因为有最短路径开销到sw1(cist域根)通过sw4.
+
+验证信息-对于上面的配置看下面:
+
+    SW1#show spanning-tree mst 0
+    
+    ##### MST0    vlans mapped:   1-4094
+    Bridge        address 0019.55e6.6800  priority      4096  (4096 sysid 0)
+    Root          this switch for the CIST
+    Operational   hello time 2 , forward delay 15, max age 20, txholdcount 6
+    Configured    hello time 2 , forward delay 15, max age 20, max hops    20
+    
+    Interface        Role Sts Cost      Prio.Nbr Type
+    ---------------- ---- --- --------- -------- --------------------------------
+    Fa0/13           Desg FWD 200000    128.15   P2p
+    Fa0/14           Desg FWD 200000    128.16   P2p
+    Fa0/19           Desg FWD 200000    128.21   P2p
+
+sw说它是cist总根桥,并且它所有的端口是非阻塞的(指定的).这个桥的优先级是被设置为了4096-这将允许我们来区分(distinguish)这个交换机在下面的显示输出中.这个端口没有被标记为边界,因为sw1没有收到任何的bpdu在这些端口-所有下行端口抑制发送他们自己的bpdu因为sw1是根桥.你可以验证这个是用下面的调试命令:
+
+    SW1#debug spanning-tree mstp bpdu receive 
+    MSTP BPDUs RECEIVEd dump debugging is on
+    SW1#
+
+下一步尝试收集bpdu由sw1发送的.注意到他们都将Mum_mrec设置为0,这意味着"0 M-记录".sw1宣称他自己是cist总根和cist域根在所有的端口.到两个根的开销都被设置成了0.
+    
+    SW1#debug spanning-tree mstp bpdu transmit 
+    MSTP BPDUs TRANSMITted dump debugging is on
+    
+    MST[0]:-TX Fa0/13  BPDU Prot:0 Vers:3 Type:2
+    MST[0]:   Role     : Desg Flags[AFL] Age:0 RemHops:20
+    MST[0]:   CIST_root: 4096.0019.55e6.d380 Cost   :0
+    MST[0]:   Reg_root : 4096.0019.55e6.d380 Cost   :0
+    MST[0]:   Bridge_ID: 4096.0019.55e6.d380 Port_ID:32783
+    MST[0]:   max_age:20 hello:2 fwdelay:15
+    MST[0]:   V3_len:64 region:REGION1 rev:0 Num_mrec: 0
+    
+    MST[0]:-TX Fa0/14  BPDU Prot:0 Vers:3 Type:2
+    MST[0]:   Role     : Desg Flags[AFL] Age:0 RemHops:20
+    MST[0]:   CIST_root: 4096.0019.55e6.d380 Cost   :0
+    MST[0]:   Reg_root : 4096.0019.55e6.d380 Cost   :0ll
+    MST[0]:   Bridge_ID: 4096.0019.55e6.d380 Port_ID:32784
+    MST[0]:   max_age:20 hello:2 fwdelay:15
+    MST[0]:   V3_len:64 region:REGION1 rev:0 Num_mrec: 0
+    
+    MST[0]:-TX Fa0/19  BPDU Prot:0 Vers:3 Type:2
+    MST[0]:   Role     : Desg Flags[AFL] Age:0 RemHops:20
+    MST[0]:   CIST_root: 4096.0019.55e6.d380 Cost   :0
+    MST[0]:   Reg_root : 4096.0019.55e6.d380 Cost   :0
+    MST[0]:   Bridge_ID: 4096.0019.55e6.d380 Port_ID:32789
+    MST[0]:   max_age:20 hello:2 fwdelay:15
+    MST[0]:   V3_len:64 region:REGION1 rev:0 Num_mrec: 0
+
+仔细查看cist的计数-在sw2上面:
+
+    SW2#show spanning-tree mst 0
+    
+    ##### MST0    vlans mapped:   1-4094
+    Bridge        address 001b.8f0c.2a00  priority      16384 (16384 sysid 0)
+    Root          address 0019.55e6.6800  priority      4096  (4096 sysid 0)
+                  port    Fa0/13          path cost     50
+    Regional Root this switch
+    Operational   hello time 2 , forward delay 15, max age 20, txholdcount 6
+    Configured    hello time 2 , forward delay 15, max age 20, max hops    20
+    
+    Interface        Role Sts Cost      Prio.Nbr Type
+    ---------------- ---- --- --------- -------- --------------------------------
+    Fa0/13           Root FWD 50        128.15   P2p Bound(RSTP)
+    Fa0/14           Altn BLK 200       128.16   P2p Bound(RSTP)
+    Fa0/16           Desg FWD 10        128.18   P2p
+    Fa0/19           Desg FWD 200000    128.21   P2p
+
+sw2是cist域根桥-它的优先级是16384.sw2学习到sw1是cist总根-优先级是4096.边界根端口是fa0/13,被选举基于基本的stp规则(最短路径,最小的上行端口的优先级).其他的边界上行链路是阻塞的.这两种端口都显示为'边界'-因为他们面对着其他的mstp域.理所当然的,sw2是域根是由于这个事实-他有最小的路径到cist总根.收集的bpdu-发送于sw2:
+
+    SW2#debug spanning-tree mstp bpdu transmit 
+    MSTP BPDUs TRANSMITted dump debugging is on
+    
+    MST[0]:-TX  Fa0/16  BPDU Prot:0 Vers:3 Type:2
+    MST[0]:   Role     : Desg Flags[FL] Age:1 RemHops:20
+    MST[0]:   CIST_root: 4096.0019.55e6.d380 Cost   :50
+    MST[0]:   Reg_root :16384.0019.564c.c580 Cost   :0
+    MST[0]:   Bridge_ID:16384.0019.564c.c580 Port_ID:32786
+    MST[0]:   max_age:20 hello:2 fwdelay:15
+    MST[0]:   V3_len:64 region:REGION234 rev:0 Num_mrec: 0
+    
+    MST[0]:-TX  Fa0/19  BPDU Prot:0 Vers:3 Type:2
+    MST[0]:   Role     : Desg Flags[FL] Age:1 RemHops:20
+    MST[0]:   CIST_root: 4096.0019.55e6.d380 Cost   :50
+    MST[0]:   Reg_root :16384.0019.564c.c580 Cost   :0
+    MST[0]:   Bridge_ID:16384.0019.564c.c580 Port_ID:32789
+    MST[0]:   max_age:20 hello:2 fwdelay:15
+    MST[0]:   V3_len:64 region:REGION234 rev:0 Num_mrec: 0
+
+sw2只发送bpdu出它的指定端口-他们是fa0/16和fa0/19.这个输出还指出了(signifies)sw2宣称sw1是cist总根,和他自己是域根.注意到cist外部根路径开销和cist域根开销.现在,检查msti0统计计数在sw3上:
+
+    SW3#show spanning-tree mst 0
+    
+    ##### MST0    vlans mapped:   1-4094
+    Bridge        address 000c.85be.c680  priority      32768 (32768 sysid 0)
+    Root          address 0019.55e6.6800  priority      4096  (4096 sysid 0)
+                  port    Fa0/19          path cost     50
+    Regional Root address 001b.8f0c.2a00  priority      16384 (16384 sysid 0)
+                                          internal cost 20        rem hops 18
+    Operational   hello time 2 , forward delay 15, max age 20, txholdcount 6
+    Configured    hello time 2 , forward delay 15, max age 20, max hops    20
+    
+    Interface        Role Sts Cost      Prio.Nbr Type
+    ---------------- ---- --- --------- -------- --------------------------------
+    Fa0/16           Altn BLK 100       128.16   P2p
+    Fa0/19           Root FWD 10        128.19   P2p
+
+sw3看到sw1是cist总根,sw1是域根.既然sw2又是ist的根,sw3需要选举一个根端口来到达它.它选择了链路通过sw4因为我们的开销手动配置导致这条链路更优.这个内部的开销-到达cist域根是10+10=20.cist外部根开销是50,外部根开销是没有增长的当通过sw2.
+
+    SW4#show spanning-tree mst 0
+    
+    ##### MST0    vlans mapped:   1-4094
+    Bridge        address 000d.2840.ab00  priority      8192  (8192 sysid 0)
+    Root          address 0019.55e6.6800  priority      4096  (4096 sysid 0)
+                  port    Fa0/16          path cost     50
+    Regional Root address 001b.8f0c.2a00  priority      16384 (16384 sysid 0)
+                                          internal cost 10        rem hops 19
+    Operational   hello time 2 , forward delay 15, max age 20, txholdcount 6
+    Configured    hello time 2 , forward delay 15, max age 20, max hops    20
+    
+    Interface        Role Sts Cost      Prio.Nbr Type
+    ---------------- ---- --- --------- -------- --------------------------------
+    Fa0/13           Altn BLK 100       128.13   P2p Bound(RSTP)
+    Fa0/16           Root FWD 10        128.16   P2p
+    Fa0/19           Desg FWD 10        128.19   P2p
+
+sw4有更小的桥优先级-比sw2,但是它没有被选举为cist域根,因为sw4的路径开销到cist总根是更差的.注意到外部的和内部的路径开销-50和10相应地.注意这个事实sw4的端口fa0/13被标记成了备用口而且是阻塞的,而同时根端口网cist域根是没有阻塞的.
+
 
 ##配置脚本2:MSTI和主口
 ..待完成
 
+在这个脚本,我们增加另外一个stp实例到region234.我们同时创建两个vlan 10和20在所有的交换机并且把他们映射到region234.
+
+    SW1:
+    vlan 10,20
+    
+    SW2, SW3 & SW4:
+    vlan 10,20
+    !
+    spanning-tree mst configuration
+     instance 1 vlan 10, 20
+
+我们关注(concerned with)显示命令-新的msti1在region234中的.注意到我们没有做任何路径修改,并且只是简单的映射新的vlan到msti1.这都甚至不是必须的-创建新的vlan,配置会工作-在vlan没有存在的情况下-因为msti是与vlan分开的.
+
+    SW2#show spanning-tree mst 1
+    
+    ##### MST1    vlans mapped:   10,20
+    Bridge        address 001b.8f0c.2a00  priority      32769 (32768 sysid 1)
+    Root          this switch for MST1
+    
+    Interface        Role Sts Cost      Prio.Nbr Type
+    ---------------- ---- --- --------- -------- --------------------------------
+    Fa0/13           Mstr FWD 200000    128.15   P2p Bound(RSTP)
+    Fa0/14           Altn BLK 200000    128.16   P2p Bound(RSTP)
+    Fa0/16           Desg FWD 200000    128.18   P2p
+    Fa0/19           Desg FWD 200000    128.21   P2p
+
+在msti1没有域根.只有普通的根,就是msti的根,使用常规的stp规则.在我们的例子里,root是sw4,根端口是fa0/19.下一个注意是特殊的"master端口".这是一个uplink端口-cist域根的.所有的msti映射到cist在这里,并且跟随单独的路径.这个端口同样是转发的并且提供了路径上行到cist总根-为所有msti和它们映射的vlan.这是非常有趣的-手机mstp的bpdu-发送和收到的在sw2上:
+
+    SW2#debug spanning-tree mstp bpdu receive 
+    MSTP BPDUs RECEIVEd dump debugging is on
+    
+    MST[0]: RX- Fa0/13 repeated designated BPDU Prot:0 Vers:3 Type:2
+    MST[0]:   Role     : Desg Flags[AFL] Age:0 RemHops:20
+    MST[0]:   CIST_root: 4096.0019.55e6.d380 Cost   :0
+    MST[0]:   Reg_root : 4096.0019.55e6.d380 Cost   :0
+    MST[0]:   Bridge_ID: 4096.0019.55e6.d380 Port_ID:32783
+    MST[0]:   max_age:20 hello:2 fwdelay:15
+    MST[0]:   V3_len:64 region:REGION1 rev:0 Num_mrec: 0
+    
+    MST[0]: RX- Fa0/14 repeated designated BPDU Prot:0 Vers:3 Type:2
+    MST[0]:   Role     : Desg Flags[AFL] Age:0 RemHops:20
+    MST[0]:   CIST_root: 4096.0019.55e6.d380 Cost   :0
+    MST[0]:   Reg_root : 4096.0019.55e6.d380 Cost   :0
+    MST[0]:   Bridge_ID: 4096.0019.55e6.d380 Port_ID:32784
+    MST[0]:   max_age:20 hello:2 fwdelay:15
+    MST[0]:   V3_len:64 region:REGION1 rev:0 Num_mrec: 0
+
+没有什么特别的在收到的bpdu里面,只有sw1声称它自己是cist总根/cist域根.看一下bpdu-sw发出的:
+
+    SW2#debug spanning-tree mstp bpdu transmit
+    MSTP BPDUs TRANSMITted dump debugging is on
+    
+    MST[0]:-TX Fa0/16  BPDU Prot:0 Vers:3 Type:2
+    MST[0]:   Role     : Desg Flags[AFL] Age:1 RemHops:20
+    MST[0]:   CIST_root: 4096.0019.55e6.d380 Cost   :50
+    MST[0]:   Reg_root :16384.0019.564c.c580 Cost   :0
+    MST[0]:   Bridge_ID:16384.0019.564c.c580 Port_ID:32786
+    MST[0]:   max_age:20 hello:2 fwdelay:15
+    MST[0]:   V3_len:80 region:REGION234 rev:0 Num_mrec: 1
+    
+    MST[1]:-TX> Fa0/16  MREC
+    MST[1]:   Role     : Desg Flags[AFL] RemHops:20
+    MST[1]:   Root_ID  :32769.0019.564c.c580 Cost   :0
+    MST[1]:   Bridge_ID:16385.0019.564c.c580 Port_id:146
+    
+    MST[0]:-TX Fa0/19  BPDU Prot:0 Vers:3 Type:2
+    MST[0]:   Role     : Desg Flags[AFL] Age:1 RemHops:20
+    MST[0]:   CIST_root: 4096.0019.55e6.d380 Cost   :50
+    MST[0]:   Reg_root :16384.0019.564c.c580 Cost   :0
+    MST[0]:   Bridge_ID:16384.0019.564c.c580 Port_ID:32789
+    MST[0]:   max_age:20 hello:2 fwdelay:15
+    MST[0]:   V3_len:80 region:REGION234 rev:0 Num_mrec: 1
+    
+    MST[1]:-TX Fa0/19  MREC
+    MST[1]:   Role     : Desg Flags[AFL] RemHops:20
+    MST[1]:   Root_ID  :32769.0019.564c.c580 Cost   :0
+    MST[1]:   Bridge_ID:16385.0019.564c.c580 Port_id:149
+
+这个输出显示了一个M-记录-附加到ist bpdu. 这个m-记录标明了sw2是的根桥-对于ist1-你能看出-通过看开销区域.(0)
+
 ##配置脚本3:PVST+和MSTP互操作
-..待完成
+
+在这个脚本,我们配置sw1使用psvt+来看看它如何协同工作与mstp.首先,配置sw1为根桥-作为所有的vlan的,并且让它赢得其他所有的mstp中的桥.
+
+    SW1:
+    spanning-tree mode pvst
+    spanning-tree vlan 1-4094 priority 4096
+
+让我们看看sw2上面发生了什么:
+
+    %SPANTREE-2-PVSTSIM_FAIL: Superior PVST BPDU received on VLAN 5 
+    
+    SW2#show spanning-tree mst 0
+    
+    ##### MST0    vlans mapped:   1-9,11-19,21-4094
+    Bridge        address 001b.8f0c.2a00  priority      16384 (16384 sysid 0)
+    Root          address 0019.55e6.6800  priority      4097  (4096 sysid 1)
+                  port    Fa0/13          path cost     50
+    Regional Root this switch
+    Operational   hello time 2 , forward delay 15, max age 20, txholdcount 6
+    Configured    hello time 2 , forward delay 15, max age 20, max hops    20
+    Interface        Role Sts Cost      Prio.Nbr Type
+    ---------------- ---- --- --------- -------- --------------------------------
+    Fa0/13           Desg BLK 50        128.15   P2p Bound(PVST)
+    Fa0/14           Desg BKN*200       128.16   P2p Bound(PVST) *PVST_Inc
+    Fa0/16           Root FWD 100       128.18   P2p Bound(RSTP)
+    Fa0/19           Altn BLK 200000    128.21   P2p Bound(RSTP)
+
+注意到系统日志信息在开始的.它标明的那个与pvst竞争操作时,mstp代码触发了这样的情形-pvst+域宣称它自己有根-对于一个或者多个vlan.那就是,pvst桥有更好的bid比现在的cist总根.结果就是,尽管mstp认为新的根为"非法的"新的cist根,它阻塞了上行的链路端口-pvst的行为不符合.有趣的是sw1任然被认为是cist总根,sw2是cist域根,但是所有的端口在cist总根上是阻塞的.检查sw1上收到的bpdu流.第一个是vlan1的bpdu被sw2感知为ieee stp bpdu.他们声称sw1是根桥-你可以看到扩展的系统id携带着的vlan好是1.
+
+    SW2#debug spanning-tree mstp bpdu receive
+    MSTP BPDUs RECEIVEd dump debugging is on
+    
+    MST[0]: RX- Fa0/13 repeated designated BPDU Prot:0 Vers:0 Type:0
+    MST[0]:   Flags[] Age:0
+    MST[0]:   CIST_root:    1.0019.55e6.d380 Cost   :0
+    MST[0]:   Bridge_ID:    1.0019.55e6.d380 Port_ID:32783
+    MST[0]:   max_age:20 hello:2 fwdelay:15
+    
+    MST[0]: RX- Fa0/14 repeated designated BPDU Prot:0 Vers:2 Type:2
+    MST[0]:   Role     : Desg Flags[FL] Age:0
+    MST[0]:   CIST_root:    1.0019.55e6.d380 Cost   :0
+    MST[0]:   Bridge_ID:    1.0019.55e6.d380 Port_ID:32784
+    MST[0]:   max_age:20 hello:2 fwdelay:15
+
+这里还有其他的bpdu被收到在sw2上,由于这个事实 802.1q是trunk封装的,sw2收到pvst+的bpdu-vlan10和vlan20的.
+
+    SW2#debug spanning-tree bpdu receive 
+    Spanning Tree BPDU Received debugging is on
+    
+    STP: MST0 rx BPDU: config protocol = mstp, packet from FastEthernet0/13  , linktype IEEE_SPANNING , enctype 2, encsize 17
+    STP: enc 01 80 C2 00 00 00 00 19 55 E6 D3 8F 00 26 42 42 03
+    STP: Data     00000000010001001955E6D380000000000001001955E6D380800F0000140002000F00
+    
+    STP: MST0 Fa0/13:0000 00 00 01 0001001955E6D380 00000000 0001001955E6D380 800F 0000 1400 0200 0F00
+    STP: MST0 rx BPDU: config protocol = mstp, packet from FastEthernet0/14  , linktype IEEE_SPANNING , enctype 2, encsize 17
+    STP: enc 01 80 C2 00 00 00 00 19 55 E6 D3 90 00 27 42 42 03
+    STP: Data     000002021E0001001955E6D380000000000001001955E6D38080100000140002000F00
+    
+    STP: MST0 Fa0/14:0000 02 02 1E 0001001955E6D380 00000000 0001001955E6D380 8010 0000 1400 0200 0F00
+    STP: MST0 rx BPDU: config protocol = mstp, packet from FastEthernet0/13  , linktype SSTP , enctype 3, encsize 22
+    STP: enc 01 00 0C CC CC CD 00 19 55 E6 D3 8F 00 32 AA AA 03 00 00 0C 01 0B
+    STP: Data     0000000001000A001955E6D38000000000000A001955E6D380800F0000140002000F00
+    
+    STP: MST0 Fa0/13:0000 00 00 01 000A001955E6D380 00000000 000A001955E6D380 800F 0000 1400 0200 0F00
+    STP: MST0 rx BPDU: config protocol = mstp, packet from FastEthernet0/14  , linktype SSTP , enctype 3, encsize 22
+    STP: enc 01 00 0C CC CC CD 00 19 55 E6 D3 90 00 32 AA AA 03 00 00 0C 01 0B
+    STP: Data     000002021E000A001955E6D38000000000000A001955E6D38080100000140002000F00
+    
+    STP: MST0 Fa0/14:0000 02 02 1E 000A001955E6D380 00000000 000A001955E6D380 8010 0000 1400 0200 0F00
+    STP: MST0 rx BPDU: config protocol = mstp, packet from FastEthernet0/13  , linktype SSTP , enctype 3, encsize 22
+    STP: enc 01 00 0C CC CC CD 00 19 55 E6 D3 8F 00 32 AA AA 03 00 00 0C 01 0B
+    STP: Data     00000000010014001955E6D380000000000014001955E6D380800F0000140002000F00
+    
+    STP: MST0 Fa0/13:0000 00 00 01 0014001955E6D380 00000000 0014001955E6D380 800F 0000 1400 0200 0F00
+    STP: MST0 rx BPDU: config protocol = mstp, packet from FastEthernet0/14  , linktype SSTP , enctype 3, encsize 22
+    STP: enc 01 00 0C CC CC CD 00 19 55 E6 D3 90 00 32 AA AA 03 00 00 0C 01 0B
+    STP: Data     000002021E0014001955E6D380000000000014001955E6D38080100000140002000F00
+
+上面的输出显示出两个口收到了ieee原始stp bpdu还有pvst+ stp bpdu-为vlan号为0xa(10)和0x14(20).现在检查msti1如何看到不符合的端口:
+
+    SW2#show spanning-tree mst 1
+    
+    ##### MST1    vlans mapped:   10,20
+    Bridge        address 001b.8f0c.2a00  priority      32769 (32768 sysid 1)
+    Root          this switch for MST1
+    
+    Interface        Role Sts Cost      Prio.Nbr Type
+    ---------------- ---- --- --------- -------- --------------------------------
+    Fa0/13           Mstr BKN*200000    128.15   P2p Bound(PVST) *PVST_Inc
+    Fa0/14           Altn BLK 200000    128.16   P2p Bound(PVST)
+    Fa0/16           Desg FWD 200000    128.18   P2p
+    Fa0/19           Desg FWD 200000    128.21   P2p
+
+这里我们能看到**主口**是被阻塞了,由于pvst的模拟不符.为了解决这个问题你需要保证mstp区域包含了根桥为所有的pvst树.这是完成于改变优先级值-cist的-到一个数值小于pvst桥优先级.
+
+    SW1:
+    spanning-tree mode pvst
+    spanning-tree vlan 1-4094 priority 8192
+    
+    SW2:
+    spanning-tree mst 0 priority 4096
+
+现在sw2是这个新的cist总根,看看这个现实命令输出-再次的:
+
+    SW2#show spanning-tree mst 0
+    
+    ##### MST0    vlans mapped:   1-9,11-19,21-4094
+    Bridge        address 001b.8f0c.2a00  priority      4096  (4096 sysid 0)
+    Root          this switch for the CIST
+    Operational   hello time 2 , forward delay 15, max age 20, txholdcount 6
+    Configured    hello time 2 , forward delay 15, max age 20, max hops    20
+    
+    Interface        Role Sts Cost      Prio.Nbr Type
+    ---------------- ---- --- --------- -------- --------------------------------
+    Fa0/13           Desg FWD 50        128.15   P2p Bound(PVST) 
+    Fa0/14           Desg FWD 200       128.16   P2p Bound(PVST) 
+    Fa0/16           Desg FWD 100       128.18   P2p
+    Fa0/19           Desg FWD 200000    128.21   P2p
+    
+    SW2#show spanning-tree mst 1
+    
+    ##### MST1    vlans mapped:   10,20
+    Bridge        address 001b.8f0c.2a00  priority      32769 (32768 sysid 1)
+    Root          address 000d.2840.ab00  priority      32769 (32768 sysid 1)
+                  port    Fa0/19          cost          200000    rem hops 19
+    
+    Interface        Role Sts Cost      Prio.Nbr Type
+    ---------------- ---- --- --------- -------- --------------------------------
+    Fa0/13           Desg FWD 200000    128.15   P2p Bound(PVST) 
+    Fa0/14           Desg FWD 200000    128.16   P2p Bound(PVST) 
+    Fa0/16           Desg FWD 200000    128.18   P2p
+    Fa0/19           Root FWD 200000    128.21   P2p
+    
+    SW1#show spanning-tree vlan 1
+    
+    VLAN0001
+      Spanning tree enabled protocol ieee
+      Root ID    Priority    4096
+                 Address     001b.8f0c.2a00
+                 Cost        19
+                 Port        15 (FastEthernet0/13)
+                 Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec
+    
+      Bridge ID  Priority    8193   (priority 8192 sys-id-ext 1)
+                 Address     0019.55e6.6800
+                 Hello Time   2 sec  Max Age 20 sec  Forward Delay 15 sec
+                 Aging Time 300
+    
+    Interface           Role Sts Cost      Prio.Nbr Type
+    ------------------- ---- --- --------- -------- --------------------------------
+    Fa0/13              Root FWD 19        128.15   P2p
+    Fa0/14              Altn BLK 19        128.16   P2p
+    Fa0/19              Altn BLK 19        128.21   P2p
+
+所有的sw2端口现在是指定的.sw2正确的emulate(实现了)pvst+互操作,并且sw1看到sw2作为根-对所有的pvst的实例.sw1将阻塞一个它的冗余上行链路基于一般的stp规则.在这个情况下,流量可能流在pvst和mstp域,你能实现最优的负载平衡-利用pvst开销修改-在sw1.
+
 
 ##结论
 
