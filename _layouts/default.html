@@ -7,23 +7,28 @@
 
     <link href="http://feeds.feedburner.com/fofore/all" rel="alternate" title="fofore" type="application/atom+xml" />
 
-    <link rel="stylesheet" href="/css/syntax.css" type="text/css" />
-    <link rel="stylesheet" href="/css/screen.css" type="text/css" media="screen, projection" />
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/highlight.css">
+
+
 </head>
 <body>
-
-<header>
-    <h1><a href="/">FOFORE</a></h1>
-    <nav>
-        <a href="/">home</a>
-        <a href="/about.html">about</a>
-        <a href="/category/story/">categories</a>
-    </nav>
-</header>
-
-<section id="content">
-    {{ content }}
-</section>
+    
+    <div id="container">
+        <div id="main" role="main">
+            <header>
+                <h1><a href="/">FOFORE</a></h1>
+            </header>
+            <nav>
+                <span><a href="/">home</a></span>
+                <span><a href="/about.html">about</a></span>
+                <span><a href="/category/story/">categories</a></span>
+            </nav>
+            <article class="content">
+            {{content}}
+            </article>
+        </div>
+    </div>
 
 <footer>
     <div class="contact">
