@@ -18,7 +18,7 @@ category:
 
 * 写作: gvim(插件: markdown)
 * 发布: github, eclipse(插件: egit), jekyll, pandoc, 还有一个你自己的域名
-* 编程: eclipse(CDT 用于写C代码)
+* 编程: eclipse(CDT 用于写C代码, 以及eclipse中的vim插件,这个很重要,否则不会是eclipse)
 * 编译调试运行: cygwin, virtualbox, 安装在virtualbox里面的linux
 * 当然还有现在最重要的东西-浏览器: chrome + firefox + google. (一定要有vim插件在里面)
 
