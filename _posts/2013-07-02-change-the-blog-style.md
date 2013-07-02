@@ -1,6 +1,6 @@
 ---
 layout: post
-title: fofore.com v2.0 上线! (基本靠拷贝)
+title: fofore.com V2.0 上线! 
 category: 
 ---
 
