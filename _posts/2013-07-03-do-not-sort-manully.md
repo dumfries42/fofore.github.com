@@ -1,5 +1,9 @@
 ---
 layout: post
-title: 2013-07-03-do-not-sort-manully.md
+title: 拒绝人工对比
 category: 
 ---
+
+
+
+
