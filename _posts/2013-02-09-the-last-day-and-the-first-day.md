@@ -1,7 +1,8 @@
 ---
 layout: post
 title: 浮生六梦
-category: story 
+categories: [life]
+tags: [dream]
 ---
 
 ##梦序

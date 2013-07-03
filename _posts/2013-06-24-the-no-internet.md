@@ -1,7 +1,8 @@
 ---
 layout: post
 title: 写给自己
-category: story 
+categories: [story]
+tags: [code, writing, critical thinking]
 ---
 
 

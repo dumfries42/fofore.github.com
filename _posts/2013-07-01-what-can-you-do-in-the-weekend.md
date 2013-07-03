@@ -1,7 +1,8 @@
 ---
 layout: post
 title: 周末两天拿来干什么
-category: 
+categories: [life]
+tags: [learning, weekend]
 ---
 
 我有个同事叫"周沫",每个星期五的下午,我去打水经过他前面的时候,都会简单的问候一下:"周末"干什么啊? 周末去不去游泳啊? 然后周沫就会很鄙视我这种人.

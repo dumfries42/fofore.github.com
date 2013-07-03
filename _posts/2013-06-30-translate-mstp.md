@@ -1,7 +1,8 @@
 ---
 layout: post
 title: 理解MSTP
-category: story 
+categories: [mstp]
+tags: [learning, mstp, 翻译]
 ---
 
 #1.动机
