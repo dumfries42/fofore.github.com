@@ -50,12 +50,9 @@ code{background-color:#F7F7F7;}
 embed,object,iframe{display:block;margin:4px auto;}
 .gist{font-size: 12px;line-height:1.6;}
 footer{text-align: center;}
-.label-info {
-	background-color: rgb(58, 135, 173);
-    font-size: 11.25px;
-	font-weight: 700;
-	color: rgb(255, 255, 254);
-	text-transform: uppercase;
-	border-radius: 3px 3px 3px 3px;
-	padding: 1px 3px 2px;
-}
+.label-info {font-size: 11.25px;font-weight: 700;color: rgb(255, 255, 254);text-transform: uppercase;border-radius: 3px 3px 3px 3px;
+background-color: rgb(58, 135, 173);padding: 1px 3px 2px;}
+
+
+)
+)
