@@ -49,3 +49,5 @@ pre,code{font-family:Menlo,"Andale Mono",Consolas,"Courier New",Monaco,monospace
 code{background-color:#F7F7F7;}
 embed,object,iframe{display:block;margin:4px auto;}
 .gist{font-size: 12px;line-height:1.6;}
+footer.show {display:block;}
+footer a.label:hover,.pills .active>a,.pills .active>a:hover {color:#fff;background-color:#b9221f;}
