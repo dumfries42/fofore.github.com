@@ -1,6 +1,6 @@
 ---
 layout: post
-title: this is my new blog only for log infomation 
+title: fofore.com 第一篇
 categories: [blog] 
 tags: [vim]
 ---
