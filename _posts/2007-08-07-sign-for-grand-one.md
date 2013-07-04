@@ -1,4 +1,4 @@
-﻿---
+---
 layout: post
 title: 大一记
 categories: [history]
@@ -14,4 +14,5 @@ tags: [sotry]
 各种情况都有列表了，对策你自己要想办法解决了。
 
 哈哈
+
 

@@ -1,4 +1,4 @@
-﻿---
+---
 layout: post
 title: 为什么会这样
 categories: [history]
