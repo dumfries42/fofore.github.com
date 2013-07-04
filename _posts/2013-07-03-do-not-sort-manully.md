@@ -1,7 +1,8 @@
 ---
 layout: post
 title: 拒绝人工对比
-category: 
+categories: [think]
+tags: [effective, python, csv, sort, excel, compare]
 ---
 
 今天接到一个简单的任务:
