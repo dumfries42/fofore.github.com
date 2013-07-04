@@ -1,10 +1,5 @@
 markdown: rdiscount
 pygments: true
-
-title: fofore
-url: http://fofore.github.com
-feed: /atom.xml
-author:
-    name: fofore
-    email: qianminming@gmail.com
-description: this is fofore's blog, use jekyll and github, and the domain name fofore means nothing but just a symbol that qianminming made up in NJUPT.
+permalink: /:year/:month/:title
+url: http://fofore.com
+author:fofore
