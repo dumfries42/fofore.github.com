@@ -13,7 +13,7 @@ tags: [python, excel, escape, github, think]
 
 这个问题将简化到下面的情况：
 
-1.  不再需要任何参数，只要将需要比较的两个csv文件拷贝到与'mergex.py'同一个目录下
+1.  不再需要任何参数，将两个csv文件（要比较的）拷到'mergex.py'所在的目录
 2.  不要进入命令行，双击‘mergex.py'就可以
 
 新的项目在这里，名字是[escex](https://github.com/fofore/escex)，就是escape excel的简单缩写。
