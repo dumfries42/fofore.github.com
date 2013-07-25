@@ -52,4 +52,4 @@ embed,object,iframe{display:block;margin:4px auto;}
 .label-info {font-size: 11.25px;font-weight: 700;color: rgb(255, 255, 254);text-transform: uppercase;border-radius: 3px 3px 3px 3px;
 background-color: rgb(58, 135, 173);padding: 1px 3px 2px;}
 footer{text-align:center;}
-.intro{border: 0 none;position: fixed;right: 0;top: 0;}
+.intro{border: 0 none;position: absolute;right: 0;top: 0;}
