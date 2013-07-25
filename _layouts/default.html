@@ -13,6 +13,10 @@
 
 <body>
     <div id="container">
+        <div id="intro">
+            <a href="http://github.com/fofore"><img class="forkme" alt="Fork me on GitHub" src="/images/forkme.png"></a>
+        </div>
+
         <div id="main" role="main">
             <header>
                 <h1>{{ page.title }}</a></h1>
@@ -20,9 +24,9 @@
             <nav>
                 <span><a title="home" 		class="" href="/">home</a></span>
                 <span><a title="about" 		class="" href="/about.html">about</a></span>
-        		<span><a title="categories" class="" href="{{ site.url }}/categories/">categories</a></span>
-        		<span><a title="tags" 	  	class="" href="{{ site.url }}/tags/">tags</a></span>
-        		<span><a href="http://fofore.com/atom.xml"><img src="/images/rss.png" alt="Subscribe to the RSS feed" /></a></span>
+                <span><a title="categories" class="" href="{{ site.url }}/categories/">categories</a></span>
+                <span><a title="tags" 	  	class="" href="{{ site.url }}/tags/">tags</a></span>
+                <span><a href="http://fofore.com/atom.xml"><img src="/images/rss.png" alt="Subscribe to the RSS feed" /></a></span>
             </nav>
             <article class="content">
             {{content}}
@@ -30,9 +34,9 @@
         </div>
     </div>
     
-	<footer>
-  	<p><small>Powered by <a href="https://github.com/mojombo/jekyll">Jekyll</a> on GitHub | Copyright 2005 - {{site.time | date:"%Y"}} by <a href="http://fofore.com">FOFORE</a> | <span class="label label-info">{{site.time | date:"%Y-%m-%d %H:%M:%S"}}</span></small></p>
-	</footer>
+<footer>
+    <p><small>Powered by <a href="https://github.com/mojombo/jekyll">Jekyll</a> on GitHub | Copyright 2005 - {{site.time | date:"%Y"}} by <a href="http://fofore.com">FOFORE</a> | <span class="label label-info">{{site.time | date:"%Y-%m-%d %H:%M:%S"}}</span></small></p>
+</footer>
 
 </body>
 
