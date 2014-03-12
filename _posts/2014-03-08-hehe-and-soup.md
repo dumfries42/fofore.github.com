@@ -2,7 +2,7 @@
 layout: post
 title: “鸡汤”和“呵呵”
 categories: [history]
-tags: [sotry]
+tags: [think]
 ---
 
 
