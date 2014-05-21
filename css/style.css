@@ -107,6 +107,6 @@ footer{text-align:center;}
 }  
 .middle
 {
-float:middle;
+    float:left;
 }
 
