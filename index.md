@@ -1,18 +1,22 @@
 ---
-title: fofore
-layout: page
 ---
 
-<ul class="listing">
-{% for post in site.posts %}
-  {% capture y %}{{post.date | date:"%Y"}}{% endcapture %}
-  {% if year != y %}
-    {% assign year = y %}
-    <li class="listing-seperator">{{y}}</li>
-  {% endif %}
-    <li class="listing-item">
-      <time datetime="{{ post.date | date:"%Y-%m-%d" }}">{{ post.date | date:"%Y-%m-%d" }}</time>
-      <a href="{{ site.url }}{{ post.url }}" title="{{ post.title }}">{{ post.title }}</a>
-{% endfor %}
-</ul>
-
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+	<link rel="stylesheet" type="text/css" href="/css/style.css">
+	<style type="text/css"></style>
+</head>
+<body>
+	<div id="content">
+		<div id="text">
+			<div id="name">
+			<a href="/home/">
+				<h6>Minming Qian</h6>
+			</a>
+			</div>
+		</div>
+	</div>	
+</body>
+</html>
