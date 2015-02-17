@@ -282,6 +282,7 @@ footer {
 #content {
   max-width: 780px;
   margin: 200px auto;
+  margin-bottom: 0px;
 }
 
 #text {
@@ -295,3 +296,44 @@ footer {
   font-size: 120px;
   font-family: Helvetica Neue;
 }
+
+
+ul.buttons {
+  list-style-type: none;
+  text-align: center;
+}
+
+
+ul.buttons li {
+  display: inline;
+}
+
+
+.social-fb:hover {
+    color: #3B5998;
+}
+
+
+.social-wb:hover {
+    color: #d34836;
+}
+
+
+#social:hover {
+    -webkit-transform: scale(1.1);
+    -moz-transform: scale(1.1);
+    -o-transform: scale(1.1);
+}
+#social {
+    -webkit-transform: scale(0.8);
+    /* Browser Variations: */
+    
+    -moz-transform: scale(0.8);
+    -o-transform: scale(0.8);
+    -webkit-transition-duration: 0.5s;
+    -moz-transition-duration: 0.5s;
+    -o-transition-duration: 0.5s;
+}
+
+
+
