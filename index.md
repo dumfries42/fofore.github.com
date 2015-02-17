@@ -25,7 +25,7 @@
 			<a href="https://www.facebook.com/qian.minming"><i id="social" class="fa fa-facebook-square fa-5x social-fb"></i></a>
 		</li>
 		<li>
-			<a href="https://www.weibo.com/fofore"><i id="social" class="fa fa-weibo fa-5x social-wb"></i></a>
+			<a href="http://www.weibo.com/fofore"><i id="social" class="fa fa-weibo fa-5x social-wb"></i></a>
 		</li>
 	</ul>
 </body>
