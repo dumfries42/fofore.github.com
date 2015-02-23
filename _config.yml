@@ -1,5 +1,4 @@
 markdown: rdiscount
 pygments: true
 permalink: /:year/:month/:title
-url: http://qianminming.me
 author: MinmingQian
