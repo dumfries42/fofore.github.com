@@ -344,3 +344,10 @@ ul.buttons li {
 }
 
 
+#HIDDEN_BEFORE_ANIMATION,
+#iforce, 
+#ns9900,
+#zforce
+{
+    visibility: hidden;
+}
