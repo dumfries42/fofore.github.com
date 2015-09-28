@@ -1,5 +1,5 @@
 ---
-title: fofore
+title: 代码与诗与人生
 layout: page
 ---
 
@@ -15,4 +15,3 @@ layout: page
       <a href="{{ site.url }}{{ post.url }}" title="{{ post.title }}">{{ post.title }}</a>
 {% endfor %}
 </ul>
-
