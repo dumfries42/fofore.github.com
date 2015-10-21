@@ -1,5 +1,5 @@
 ---
-title: 代码与诗与人生
+title: 代码与诗与生活
 layout: page
 ---
 
