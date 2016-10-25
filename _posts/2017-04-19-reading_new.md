@@ -5,8 +5,8 @@ categories: [history]
 tags: [sotry]
 ---
 
-'''
 
+~~~~
 void magic(Node *p1, Node *p2){
     bool p1Later = true;
     disp(p1);
@@ -40,4 +40,5 @@ void magic(Node *p1, Node *p2){
 
 }
 
-'''
+
+~~~~
