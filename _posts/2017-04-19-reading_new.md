@@ -23,14 +23,12 @@ void magic(Node *p1, Node *p2){
 
     Node* delTmp;
     if (p1Later) {
-
         while (p2->next->data != p1->data) {
             delTmp = p2->next;
             p2->next = p2->next->next;
             delete delTmp;
         }
     } else {
-        delTmp = p1;
         while (p1->next->data != p2->data) {
             delTmp = p1->next;
             p1->next = p1->next->next;
@@ -39,6 +37,5 @@ void magic(Node *p1, Node *p2){
     }
 
 }
-
 
 ~~~~
