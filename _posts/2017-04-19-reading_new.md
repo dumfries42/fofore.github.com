@@ -7,10 +7,9 @@ tags: [sotry]
 
 
 ~~~~
+
 void magic(Node *p1, Node *p2){
     bool p1Later = true;
-    disp(p1);
-    disp(p2);
 
     Node* tmp = p1;
     while (tmp->next != NULL) {
@@ -37,5 +36,6 @@ void magic(Node *p1, Node *p2){
     }
 
 }
+
 
 ~~~~
