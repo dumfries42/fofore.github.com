@@ -1,5 +1,5 @@
 ---
-title: 代码与诗与生活
+title: a long journey
 layout: page
 ---
 
