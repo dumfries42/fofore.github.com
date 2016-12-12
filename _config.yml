@@ -1,4 +1,3 @@
-markdown: rdiscount
 pygments: true
 permalink: /:year/:month/:title
 author: MinmingQian
