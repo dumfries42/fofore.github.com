@@ -375,7 +375,10 @@
   <component name="PropertiesComponent">
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="WebServerToolWindowFactoryState" value="false" />
+<<<<<<< Updated upstream
     <property name="FullScreen" value="true" />
+=======
+>>>>>>> Stashed changes
     <property name="HbShouldOpenHtmlAsHb" value="" />
     <property name="settings.editor.selected.configurable" value="vcs.Git" />
     <property name="js.eslint.eslintPackage" value="" />
@@ -464,13 +467,21 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1441182049199</updated>
+<<<<<<< Updated upstream
       <workItem from="1481511510955" duration="4941000" />
       <workItem from="1481604406173" duration="2186000" />
+=======
+      <workItem from="1481511510955" duration="5539000" />
+>>>>>>> Stashed changes
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
+<<<<<<< Updated upstream
     <option name="totallyTimeSpent" value="7127000" />
+=======
+    <option name="totallyTimeSpent" value="5539000" />
+>>>>>>> Stashed changes
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -482,8 +493,13 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
+<<<<<<< Updated upstream
     <frame x="0" y="0" width="2560" height="1440" extended-state="0" />
     <editor active="true" />
+=======
+    <frame x="879" y="346" width="1400" height="983" extended-state="0" />
+    <editor active="false" />
+>>>>>>> Stashed changes
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
