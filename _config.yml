@@ -1,3 +1,4 @@
 pygments: true
 permalink: /:year/:month/:title
 author: MinmingQian
+highlighter: rouge
